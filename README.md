@@ -22,11 +22,11 @@ Self-hosted chat interface (Docker container on my VPS) that ties together the S
 **Speech-to-Text: faster-whisper (Whisper `base` model)**
 Runs locally inside the Open WebUI container, so nothing is sent to a third-party speech API. Language detection is left on automatic (the language field is simply left blank), so it picks up Russian and English in the same session without me having to switch settings manually.
 
-**LLM: Groq API, Llama 3.3 70B**
-The only component that isn't self-hosted, since running a 70B model locally isn't realistic on a CPU-only VPS. Groq's free tier covers this comfortably for personal daily practice, and I enabled Zero Data Retention (both the global toggle and the inference-API-specific one) in the Groq console, so inputs and outputs aren't logged, not even temporarily.
+**LLM: Groq API, Llama 3.1 8B Instant**
+The only component that isn't self-hosted, since running a large model locally isn't realistic on a CPU-only VPS. I switched to the smaller 8B model after running into daily rate limits during heavy testing — it has a much higher daily token quota than the 70B model, and Groq's free tier still covers it comfortably for personal daily practice. Zero Data Retention (both the global toggle and the inference-API-specific one) is enabled in the Groq console, so inputs and outputs aren't logged, not even temporarily.
 
 **Text-to-Speech: kokoro-fastapi (self-hosted)**
-A separate Docker container (`ghcr.io/remsky/kokoro-fastapi-cpu`) running the Kokoro TTS model, exposed as an OpenAI-compatible endpoint that Open WebUI talks to over the internal Docker network. Speech synthesis happens entirely on my own server.
+A separate Docker container (`ghcr.io/remsky/kokoro-fastapi-cpu`) running the Kokoro TTS model, exposed as an OpenAI-compatible endpoint that Open WebUI talks to over the internal Docker network. Speech synthesis happens entirely on my own server. Since kokoro-fastapi's own test interface has no built-in login, I moved it behind its own subdomain, kokoro.lilia.am, with HTTPS and Basic Auth at the Nginx level — closing off what had briefly been an open, unauthenticated endpoint.
 
 **The coach persona**
 A custom system prompt defines a bilingual speaking coach: it understands Russian, broken English, or fluent English in any mix, responds in kind, offers a more natural or advanced way to phrase things when useful, and keeps its own replies short (1 to 3 sentences) to keep the pace of the conversation natural and easy to follow. The coach always replies out loud in English, since that's the language being practiced.
